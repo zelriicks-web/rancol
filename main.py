@@ -1,31 +1,35 @@
-from fastapi import FastAPI
-import random, requests
+import random
+import requests
+from flask import Flask
 
-app = FastAPI()
+app = Flask(__name__)
 
-def get_champions():
-    try:
-        version = requests.get("https://ddragon.leagueoflegends.com/api/versions.json").json()[0]
-        data = requests.get(f"https://ddragon.leagueoflegends.com/cdn/{version}/data/en_US/champion.json").json()
-        return list(data["data"].keys())
-    except:
-        return ["Ahri", "Yasuo", "Lux", "LeeSin", "Garen", "Teemo"]
+# Descargar lista de campeones desde Riot
+versions = requests.get("https://ddragon.leagueoflegends.com/api/versions.json").json()
+latest_version = versions[0]
 
-champions = get_champions()
+champions_data = requests.get(
+    f"https://ddragon.leagueoflegends.com/cdn/{latest_version}/data/en_US/champion.json"
+).json()
 
-@app.get("/")
-def root():
-    return {"message": "Rancol API lista. Usa /rancol para un pick aleatorio."}
+champions = list(champions_data["data"].keys())
 
-@app.get("/rancol")
-def rancol(user: str = "Maycol"):
+# Asegurar que Yunara esté incluida
+if "Yunara" not in champions:
+    champions.append("Yunara")
+
+@app.route("/rancol")
+def random_pick():
     champ = random.choice(champions)
     frases = [
-        f"{user} pickea {champ}, ahora sí que saldrán cosas coreanas 🇰🇷",
-        f"{user} eligió {champ}, el draft se fue a la B 😭",
-        f"{champ} fue pickeado por {user}, ya huele a pentakill 😎",
-        f"{user} saca {champ}, GG EZ 🔥",
-        f"{champ} es el elegido por {user}… o la víctima 😏",
+        f"Maycol pickea {champ}, ahora sí que saldrán cosas coreanas 🇰🇷",
+        f"{champ} fue elegido por Maycol... GG o troleo, tú decides 😏",
+        f"Maycol con {champ}, prepárense para la pentakill 😎",
+        f"{champ} pickeado por Maycol, ¡que empiece el show!",
+        f"{champ} es la elección de Maycol, meta asegurada 🔥"
     ]
-    # Solo devolver el texto como hacía chebacor
-    return {"result": random.choice(frases)}
+    return random.choice(frases)
+
+@app.route("/")
+def home():
+    return "API Rancol Activa!"
