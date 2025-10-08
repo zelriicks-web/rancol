@@ -1,6 +1,6 @@
 import random
 import requests
-from flask import Flask
+from flask import Flask, request
 
 app = Flask(__name__)
 
@@ -20,16 +20,23 @@ if "Yunara" not in champions:
 
 @app.route("/rancol")
 def random_pick():
+    user = request.args.get("user", "Maycol")
     champ = random.choice(champions)
     frases = [
-        f"Maycol pickea {champ}, ahora sí que saldrán cosas coreanas 🇰🇷",
-        f"{champ} fue elegido por Maycol... GG o troleo, tú decides 😏",
-        f"Maycol con {champ}, prepárense para la pentakill 😎",
-        f"{champ} pickeado por Maycol, ¡que empiece el show!",
-        f"{champ} es la elección de Maycol, meta asegurada 🔥"
+        f"{user} pickea {champ}, ahora sí que saldrán cosas coreanas 🇰🇷",
+        f"{champ} fue elegido por {user}... GG o troleo, tú decides 😏",
+        f"{user} con {champ}, prepárense para la pentakill 😎",
+        f"{champ} pickeado por {user}, ¡que empiece el show!",
+        f"{champ} es la elección de {user}, meta asegurada 🔥"
     ]
     return random.choice(frases)
 
 @app.route("/")
 def home():
     return "API Rancol Activa!"
+
+# Ejecutar Flask localmente si se usa python main.py
+if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
